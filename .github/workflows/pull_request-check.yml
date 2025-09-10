@@ -1,4 +1,4 @@
-name: .NET Pull Request Checks
+﻿name: .NET Pull Request Checks
 
 on:
   pull_request:
@@ -14,7 +14,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2. Configurar .NET (ajusta la versi�n si usas otra)
+      # 2. Configurar .NET (ajusta la versión si usas otra)
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
@@ -24,7 +24,7 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
 
-      # 4. Compilar la soluci�n/proyecto
+      # 4. Compilar la solución/proyecto
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
@@ -32,15 +32,18 @@ jobs:
       - name: Run tests
         run: dotnet test --no-build --verbosity normal
 
-         # 6. Notificar resultado al Webhook
-      - name: Send notification to webhook
+          # 6. Notificar resultado a Discord
+      - name: Send notification to Discord
         if: always() # Se ejecuta aunque falle la build o los tests
         run: |
-          curl -X POST \
-            -H "Content-Type: application/json" \
-            -d "{\"repository\": \"${{ github.repository }}\", \
-                 \"workflow\": \"${{ github.workflow }}\", \
-                 \"status\": \"${{ job.status }}\", \
-                 \"pr_number\": \"${{ github.event.pull_request.number }}\", \
-                 \"commit\": \"${{ github.sha }}\"}" \
-            https://discordapp.com/api/webhooks/1415024416106221578/ffahiWsb5QXjw02G5qUeh1R3_2psKJsAul38-CPZkmxdC8ZnymbXUiXpOiG5s1XrLgTb
+          curl -H "Content-Type: application/json" \
+               -X POST \
+               -d "{
+                     \"username\": \"GitHub Actions\",
+                     \"embeds\": [{
+                       \"title\": \"🔔 Workflow ejecutado\",
+                       \"description\": \"Repositorio: **${{ github.repository }}**\nWorkflow: **${{ github.workflow }}**\nEstado: **${{ job.status }}**\nPull Request: #${{ github.event.pull_request.number }}\nCommit: ${{ github.sha }}\",
+                       \"color\": $([[ \"${{ job.status }}\" == \"success\" ]] && echo 3066993 || echo 15158332)
+                     }]
+                   }" \
+               ${{ secrets.DISCORD_WEBHOOK }}

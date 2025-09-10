@@ -1,35 +1,33 @@
-name: Pull Request Checks
+name: .NET Pull Request Checks
 
 on:
   pull_request:
     branches:
       - main
-      - develop
-      - '**' # opcional: ejecuta en todos los branches destino
 
 jobs:
-  lint-and-test:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout del código
+      # 1. Checkout del repositorio
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2. Configuración de Node.js (si tu proyecto es JS/TS)
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      # 2. Configurar .NET (ajusta la versión si usas otra)
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
         with:
-          node-version: '18'
+          dotnet-version: '9.0.x'
 
-      # 3. Instalar dependencias
-      - name: Install dependencies
-        run: npm install
+      # 3. Restaurar dependencias
+      - name: Restore dependencies
+        run: dotnet restore
 
-      # 4. Revisar estilo/linter
-      - name: Run linter
-        run: npm run lint --if-present
+      # 4. Compilar la solución/proyecto
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
 
-      # 5. Ejecutar pruebas
+      # 5. Ejecutar pruebas unitarias
       - name: Run tests
-        run: npm test --if-present
+        run: dotnet test --no-build --verbosity normal

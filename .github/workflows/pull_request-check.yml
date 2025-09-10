@@ -31,3 +31,16 @@ jobs:
       # 5. Ejecutar pruebas unitarias
       - name: Run tests
         run: dotnet test --no-build --verbosity normal
+
+         # 6. Notificar resultado al Webhook
+      - name: Send notification to webhook
+        if: always() # Se ejecuta aunque falle la build o los tests
+        run: |
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            -d "{\"repository\": \"${{ github.repository }}\", \
+                 \"workflow\": \"${{ github.workflow }}\", \
+                 \"status\": \"${{ job.status }}\", \
+                 \"pr_number\": \"${{ github.event.pull_request.number }}\", \
+                 \"commit\": \"${{ github.sha }}\"}" \
+            https://discordapp.com/api/webhooks/1415024416106221578/ffahiWsb5QXjw02G5qUeh1R3_2psKJsAul38-CPZkmxdC8ZnymbXUiXpOiG5s1XrLgTb

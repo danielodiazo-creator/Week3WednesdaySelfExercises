@@ -1,0 +1,33 @@
+name: .NET Pull Request Checks
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout del repositorio
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 2. Configurar .NET (ajusta la versión si usas otra)
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '9.0.x'
+
+      # 3. Restaurar dependencias
+      - name: Restore dependencies
+        run: dotnet restore
+
+      # 4. Compilar la solución/proyecto
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      # 5. Ejecutar pruebas unitarias
+      - name: Run tests
+        run: dotnet test --no-build --verbosity normal

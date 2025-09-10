@@ -1,0 +1,35 @@
+name: Pull Request Checks
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+      - '**' # opcional: ejecuta en todos los branches destino
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout del código
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 2. Configuración de Node.js (si tu proyecto es JS/TS)
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      # 3. Instalar dependencias
+      - name: Install dependencies
+        run: npm install
+
+      # 4. Revisar estilo/linter
+      - name: Run linter
+        run: npm run lint --if-present
+
+      # 5. Ejecutar pruebas
+      - name: Run tests
+        run: npm test --if-present
